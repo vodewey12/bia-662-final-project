@@ -6,14 +6,9 @@ const openai = new OpenAI({
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { heartRate, activity } = req.body;
-
-    if (!heartRate || !activity) {
-      return res.status(400).json({ error: 'Heart rate and activity are required.' });
-    }
+    const prompt = req.body;
 
     try {
-      const prompt = `The user has an average heart rate of ${heartRate} BPM and is about to ${activity}. Suggest a mood or genre for the music.`;
       console.log(prompt)
       const response = await openai.completions.create({
         model: 'gpt-3.5-turbo',

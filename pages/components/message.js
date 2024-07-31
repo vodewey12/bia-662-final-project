@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { styled } from '@mui/material/styles';
 import styles from '../../styles/Home.module.css'
-
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
@@ -17,11 +14,6 @@ import Box from '@mui/material/Box';
 export default function MessageCard({
     text, type, timestamp
 }) {
-    const [expanded, setExpanded] = useState('');
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
     if (type == 'user') {
         return (
             <Card className={styles.userCard} sx={{ minWidth: '100%' }}>

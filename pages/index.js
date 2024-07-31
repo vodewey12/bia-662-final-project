@@ -4,23 +4,19 @@ import { useState } from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
-import TextArea from './components/textarea';
 import MessageCard from './components/message';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import InputBase from '@mui/material/InputBase';
+import SendIcon from '@mui/icons-material/Send';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export default function Home() {
 
-  const [heartRate, setHeartRate] = useState('');
-  const [activity, setActivity] = useState('');
-  const [suggestion, setSuggestion] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +26,7 @@ export default function Home() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ heartRate, activity }),
+      body: JSON.stringify(inputValue),
     });
 
     const data = await res.json();
@@ -59,11 +55,35 @@ export default function Home() {
           <Grid md={100}>
             <MessageCard key={'120'} className={styles.messageCard} type={'ai'} timeStamp={"testing"} text={"Hello"}></MessageCard>
           </Grid>
+          <Grid md={100}>
+            <MessageCard key={'120'} className={styles.messageCard} type={'user'} timeStamp={"testing"} text={"Hello"}></MessageCard>
+          </Grid>
+          <Grid md={100}>
+            <MessageCard key={'120'} className={styles.messageCard} type={'ai'} timeStamp={"testing"} text={"Hello"}></MessageCard>
+          </Grid>
         </Grid>
       </main>
       <div className={styles.textArea}>
-        <TextArea>
-        </TextArea>
+        <Paper
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%' }}
+        >
+          <IconButton sx={{ p: '10px' }} color="primary" >
+            <AccountCircleIcon />
+          </IconButton>
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Ask for music recommendations"
+            inputProps={{ 'aria-label': 'ask for music recommendations' }}
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+          <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+          <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions" type='submit'>
+            <SendIcon />
+          </IconButton>
+        </Paper>
       </div>
 
     </div>

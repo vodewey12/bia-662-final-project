@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
@@ -8,12 +6,6 @@ import SendIcon from '@mui/icons-material/Send';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export default function TextArea() {
-    const [expanded, setExpanded] = useState('');
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
-
     return (
         <Paper
             component="form"
