@@ -1,8 +1,20 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useState } from 'react';
+import Grid from '@mui/material/Unstable_Grid2';
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import TextArea from './components/textarea';
+import MessageCard from './components/message';
 
-
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
 
 export default function Home() {
 
@@ -28,7 +40,9 @@ export default function Home() {
       setSuggestion(data.suggestion);
     }
   };
-
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages]);
 
   return (
     <div className={styles.container}>
@@ -37,110 +51,21 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-      <h1>Music Recommendation</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Average Heart Rate:
-          <input
-            type="number"
-            value={heartRate}
-            onChange={(e) => setHeartRate(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Activity:
-          <input
-            type="text"
-            value={activity}
-            onChange={(e) => setActivity(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-        <button type="submit">Get Recommendation</button>
-      </form>
+      <main className={styles.main}>
+        <Grid container rowSpacing={2} >
+          <Grid md={100}>
+            <MessageCard key={'120'} className={styles.messageCard} type={'user'} timeStamp={"testing"} text={"Hello"}></MessageCard>
+          </Grid>
+          <Grid md={100}>
+            <MessageCard key={'120'} className={styles.messageCard} type={'ai'} timeStamp={"testing"} text={"Hello"}></MessageCard>
+          </Grid>
+        </Grid>
       </main>
+      <div className={styles.textArea}>
+        <TextArea>
+        </TextArea>
+      </div>
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        footer img {
-          margin-left: 0.5rem;
-        }
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-        }
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family:
-            Menlo,
-            Monaco,
-            Lucida Console,
-            Liberation Mono,
-            DejaVu Sans Mono,
-            Bitstream Vera Sans Mono,
-            Courier New,
-            monospace;
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            Segoe UI,
-            Roboto,
-            Oxygen,
-            Ubuntu,
-            Cantarell,
-            Fira Sans,
-            Droid Sans,
-            Helvetica Neue,
-            sans-serif;
-        }
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
     </div>
   );
 }
