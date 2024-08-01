@@ -1,9 +1,9 @@
 .container {
   min-height: 100vh;
-  padding: 0 0.5rem;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
 }
 
 
@@ -78,7 +78,7 @@
 .textArea {
   position: fixed;
   bottom: 20px;
-  width: 98.5%;
+  width: 99%;
   background-color: #fff;
   border-top: 0px solid #ccc;
   padding: 0px 0px 0px 0px;

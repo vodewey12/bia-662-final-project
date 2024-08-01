@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useState } from 'react';
-import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import MessageCard from './components/message';
 import Divider from '@mui/material/Divider';
@@ -20,7 +19,7 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessages([...messages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
+    setMessages((prevMessages) => [...prevMessages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
     const res = await fetch('/api/chatgpt', {
       method: 'POST',
       headers: {
@@ -30,11 +29,11 @@ export default function Home() {
     });
     
     const data = await res.json();
-    console.log(data.quote.choices[0].message.content)
     if (data) {
-      setMessages([...messages, { text: data.quote.choices[0].message.content, type: 'ai', id: 'ai'+Date.now(), timestamp: new Date(Date.now()).toLocaleString()}]);
+    setMessages((prevMessages) => [...prevMessages, { text: data.quote.choices[0].message.content, type: 'ai', id: 'ai'+Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString()}]);
     }
   };
+
   // useEffect(() => {
   //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   // }, [messages]);
