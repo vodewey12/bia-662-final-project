@@ -9,27 +9,30 @@ export default async function handler(req, res) {
     const prompt = req.body;
 
     try {
-      console.log(prompt)
-      const response = await openai.completions.create({
+      const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        prompt: prompt,
+        messages: [
+          {"role": "system", "content": "You are a helpful assistant."},
+          {"role": "user", "content": prompt}
+        ],
         max_tokens: 30
       });
-      const quote = response.choices[0].text;
-      for await (const part of stream) {
-        console.log(part.choices[0]);
-      }
+      console.log(response)
+      const quote = response;
+
       res.status(200).json({ quote });
 
     } catch (error) {
         if (error instanceof OpenAI.APIError) {
+          console.log('fun')
           console.error(error.status);  // e.g. 401
           console.error(error.message); // e.g. The authentication token you passed was invalid...
           console.error(error.code);  // e.g. 'invalid_api_key'
           console.error(error.type);  // e.g. 'invalid_request_error'
+          res.status(error.code).json({'error': error.message});
         } else {
           // Non-API error
-          console.log(error);
+          res.status(404).json({error: error.message});
         }
     }
   } else {

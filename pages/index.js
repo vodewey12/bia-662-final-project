@@ -2,7 +2,6 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useState } from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
-import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import MessageCard from './components/message';
 import Divider from '@mui/material/Divider';
@@ -12,15 +11,16 @@ import SendIcon from '@mui/icons-material/Send';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export default function Home() {
-
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
+
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setMessages([...messages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
     const res = await fetch('/api/chatgpt', {
       method: 'POST',
       headers: {
@@ -28,12 +28,11 @@ export default function Home() {
       },
       body: JSON.stringify(inputValue),
     });
-
+    
     const data = await res.json();
-    if (data.error) {
-      alert(data.error);
-    } else {
-      setSuggestion(data.suggestion);
+    console.log(data.quote.choices[0].message.content)
+    if (data) {
+      setMessages([...messages, { text: data.quote.choices[0].message.content, type: 'ai', id: 'ai'+Date.now(), timestamp: new Date(Date.now()).toLocaleString()}]);
     }
   };
   // useEffect(() => {
@@ -48,20 +47,10 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <Grid container rowSpacing={2} >
-          <Grid md={100}>
-            <MessageCard key={'120'} className={styles.messageCard} type={'user'} timeStamp={"testing"} text={"Hello"}></MessageCard>
-          </Grid>
-          <Grid md={100}>
-            <MessageCard key={'120'} className={styles.messageCard} type={'ai'} timeStamp={"testing"} text={"Hello"}></MessageCard>
-          </Grid>
-          <Grid md={100}>
-            <MessageCard key={'120'} className={styles.messageCard} type={'user'} timeStamp={"testing"} text={"Hello"}></MessageCard>
-          </Grid>
-          <Grid md={100}>
-            <MessageCard key={'120'} className={styles.messageCard} type={'ai'} timeStamp={"testing"} text={"Hello"}></MessageCard>
-          </Grid>
-        </Grid>
+        {messages.map((message) => (
+          <MessageCard key={message.id} className={styles.messageCard} type={message.type} timestamp={message.timestamp} text={message.text}></MessageCard>
+        )
+        )}
       </main>
       <div className={styles.textArea}>
         <Paper

@@ -16,18 +16,20 @@ export default function MessageCard({
 }) {
     if (type == 'user') {
         return (
-            <Card className={styles.userCard} sx={{ minWidth: '100%' }}>
+            <Card className={styles.userCard} sx={{ width: '100%'}}>
                 <CardHeader
                     avatar={
                         <Avatar className={styles.userAvatar} sx={{ bgcolor: blue[500] }} aria-label="message">
-                            R
+                            A
                         </Avatar>
                     }
                     title={<Box sx={{ textAlign: 'right', width: '100%' }}>
                         User
                     </Box>
                     }
-                    subheader={timestamp}
+                    subheader={<Box sx={{ textAlign: 'right', width: '100%' }}>
+                        {timestamp}
+                    </Box>}
                     sx={{
                         display: 'flex',
                         flexDirection: 'row-reverse',
@@ -37,7 +39,7 @@ export default function MessageCard({
                 />
                 <CardContent>
                     <Typography variant="body2" color="text.secondary">
-                        This impressive paella is a perfect party dish and a fun meal to cook together with your guests. Add 1 cup of frozen peas along with the mussels, if you like.
+                        {text}
                     </Typography>
                 </CardContent>
             </Card>
@@ -48,7 +50,7 @@ export default function MessageCard({
                 <CardHeader
                     avatar={
                         <Avatar sx={{ bgcolor: red[500] }} aria-label="message">
-                            R
+                            AI
                         </Avatar>
                     }
                     title="OpenAI"
