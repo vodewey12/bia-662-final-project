@@ -8,9 +8,8 @@ import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { red, blue } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
+import ReplayIcon from '@mui/icons-material/Replay';
 import Box from '@mui/material/Box';
-
 export default function MessageCard({
     text, type, timestamp
 }) {
@@ -63,11 +62,8 @@ export default function MessageCard({
                     </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
-                    <IconButton aria-label="add to favorites">
-                        <FavoriteIcon />
-                    </IconButton>
-                    <IconButton aria-label="share">
-                        <ShareIcon />
+                    <IconButton aria-label="replay">
+                        <ReplayIcon />
                     </IconButton>
                 </CardActions>
             </Card>

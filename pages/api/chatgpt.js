@@ -12,12 +12,11 @@ export default async function handler(req, res) {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
-          {"role": "system", "content": "You are a helpful assistant."},
+          {"role": "system", "content": "User will provide an input for song recommendation but only recommend artists in the following format. Artist: 1. <> 2. <> 3.<>"},
           {"role": "user", "content": prompt}
         ],
         max_tokens: 30
       });
-      console.log(response)
       const quote = response;
 
       res.status(200).json({ quote });

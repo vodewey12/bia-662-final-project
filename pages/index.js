@@ -46,6 +46,8 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <MessageCard key="123123" className={styles.messageCard} type='ai' timestamp='' text='Tell the recommender about your current activiy'></MessageCard>
+
         {messages.map((message) => (
           <MessageCard key={message.id} className={styles.messageCard} type={message.type} timestamp={message.timestamp} text={message.text}></MessageCard>
         )
