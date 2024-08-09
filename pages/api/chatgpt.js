@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
-          {"role": "system", "content": "User will provide an input for song recommendation but only recommend artists in the following format. Artist: 1. <> 2. <> 3.<>"},
+          {"role": "system", "content": "User will provide an input for song recommendation but only recommend artists in the following format. At <heart rate> while doing <activity name> Artist: 1. <> 2. <> 3.<> "},
           {"role": "user", "content": prompt}
         ],
         max_tokens: 30

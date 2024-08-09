@@ -10,6 +10,8 @@ import { red, blue } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ReplayIcon from '@mui/icons-material/Replay';
 import Box from '@mui/material/Box';
+
+
 export default function MessageCard({
     text, type, timestamp
 }) {
