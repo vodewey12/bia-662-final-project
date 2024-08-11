@@ -12,11 +12,10 @@ const axiosInstance = axios.create({
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const songs = req.body;
-
+        const song_data = req.body;
         try {
             const response = await axiosInstance.post('http://127.0.0.1:5000/predict', {
-                songIds: songs
+                song_data
             });
             res.status(200).json(response.data)
         } catch (error) {

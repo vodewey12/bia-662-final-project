@@ -60,20 +60,39 @@ export default function Home() {
     e.preventDefault();
     setMessages((prevMessages) => [...prevMessages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
 
+    // const aiRes = await fetch('/api/chatgpt', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(inputValue),
+    // });
+
+    // const aiData = await aiRes.json();
+    // if (aiData) {
+    //   console.log(aiData.choices[0].message.content);
+    //   setMessages((prevMessages) => [...prevMessages, { text: aiData.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
+    // }
+
     // Call the model
+    const payload = {
+      songIds: ['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD'],
+      gptSongIds: ['02GDntOXexBFUvSgaXLPkd', '1ZUv3ISx2nFaz0JimVdcoT', '0emd9tHSVP4dK6UG4pcOFD', '0MJZ4hh60zwsYleWWxT5yW', '3ZlvfjWLxFqfOGK2FTR2ph'],
+      heartRate: 110
+    };
+
     const modelRes = await fetch('/api/model', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD']),
+      body: JSON.stringify(payload)
     });
     const modelData = await modelRes.json();
     if (modelData) {
-      const shuffledList = getShuffledSubset(modelData.songList, 4)
+      const shuffledList = getShuffledSubset(modelData.songList, 8)
       setSongs(shuffledList)
     }
-
 
     // const aiRes = await fetch('/api/chatgpt', {
     //   method: 'POST',
@@ -85,7 +104,7 @@ export default function Home() {
 
     // const aiData = await aiRes.json();
     // if (aiData) {
-    //   setMessages((prevMessages) => [...prevMessages, { text: data.quote.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
+    //   setMessages((prevMessages) => [...prevMessages, { text: aiData.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
     // }
     // setFormDisabled(false)
   };
