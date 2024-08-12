@@ -9,17 +9,18 @@
 
 .userCard {
   margin: 20px 0px;
-  background-color: #FBF5F3;
+  background-color: #121212;
+  color: white;
 }
 .aiCard {
-  background-color: #FBF5F3;
+  background-color: #121212;
+  color: white;
 }
 
 .title a {
-  color: #0070f3;
+  color: #ffffff;
   text-decoration: none;
 }
-
 
 .title a:hover,
 .title a:focus,
@@ -45,10 +46,6 @@
 .description {
   line-height: 1.5;
   font-size: 1.5rem;
-}
-
-.main {
-  width: 100%;
 }
 
 .card:hover,

@@ -24,12 +24,11 @@ export default function MessageCard({
                             A
                         </Avatar>
                     }
-                    title={<Box sx={{ textAlign: 'right', width: '100%' }}>
+                    title={<Box sx={{ textAlign: 'right', width: '100%', color: 'white'}}>
                         User
                     </Box>
                     }
                     subheader={<Box sx={{ textAlign: 'right', width: '100%' }}>
-                        {timestamp}
                     </Box>}
                     sx={{
                         display: 'flex',
@@ -38,8 +37,8 @@ export default function MessageCard({
                         justifyContent: 'space-between',
                     }}
                 />
-                <CardContent>
-                    <Typography variant="body2" color="text.secondary">
+                <CardContent sx={{textAlign: 'right'}}>
+                    <Typography variant="body2" color="white">
                         {text}
                     </Typography>
                 </CardContent>
@@ -55,18 +54,14 @@ export default function MessageCard({
                         </Avatar>
                     }
                     title="OpenAI"
-                    subheader={timestamp}
 
                 />
                 <CardContent>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="white">
                         {text}
                     </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
-                    <IconButton aria-label="replay">
-                        <ReplayIcon />
-                    </IconButton>
                 </CardActions>
             </Card>
         );

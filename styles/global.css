@@ -1,5 +1,7 @@
 html,
 body {
+  background-color: #212121;
+  margin: 0;
   font-family:
     Inter,
     -apple-system,
@@ -19,10 +21,6 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
 }
 
 img {

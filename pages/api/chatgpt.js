@@ -6,16 +6,17 @@ const openai = new OpenAI({
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const prompt = req.body;
+    const prompt = req.body.inputValue;
+    const role = req.body.initialRole
 
     try {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
-          {"role": "system", "content": "User will provide an input for song recommendation but only recommend artists in the following format. At <heart rate> while doing <activity name> Artist: 1. <> 2. <> 3.<> "},
+          {"role": "system", "content": role},
           {"role": "user", "content": prompt}
         ],
-        max_tokens: 30
+        max_tokens: 100
       });
       const quote = response;
 
@@ -23,7 +24,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         if (error instanceof OpenAI.APIError) {
-          console.log('fun')
           console.error(error.status);  // e.g. 401
           console.error(error.message); // e.g. The authentication token you passed was invalid...
           console.error(error.code);  // e.g. 'invalid_api_key'

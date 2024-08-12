@@ -12,7 +12,7 @@ const data = [
 ,
 ];
 
-const palette = [red[500], 'blue', 'green'];
+const palette = [blue[500], 'blue', 'green'];
 
 const size = {
     width: 400,

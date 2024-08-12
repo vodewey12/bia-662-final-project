@@ -12,11 +12,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import HeartChart from './components/heartChart';
-import HeartRate from './components/heartRate';
 import Title from './components/title'
-import Slider from '@mui/material/Slider'
 import MusicCard from './components/musicCard';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 // Function to shuffle an array using Fisher-Yates algorithm
 function shuffleArray(array) {
@@ -33,81 +32,99 @@ function getShuffledSubset(array, numElements) {
   return shuffledArray.slice(0, numElements); // Select the first N elements
 }
 
-const originalArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const numberOfElements = 4;
+function gptSongParser(songString) {
+  const songList = songString
+    .slice(1, -1) // Remove the starting and ending brackets
+    .split(/,\s*(?=\")/); // Split the string by comma followed by a space and a double quote
 
+  return songList.map(song => {
+    const match = song.match(/"(.*?)" by/);
+    return match ? match[1] : '';
+  });
+}
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [songs, setSongs] = useState([])
   const [inputValue, setInputValue] = useState('');
   const [formDisabled, setFormDisabled] = useState([false]);
-  const [value, setValue] = useState([50]);
+  const [targetHeartRate, setTargetHeartRate] = useState(100);
+  const [gptSongs, setGptSongs] = useState([])
 
-  const handleSliderChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const handleAddHeartRate = (event) => {
+    setTargetHeartRate(targetHeartRate + 1)
+  }
+  const handleMinusHeartRate = (event) => {
+    setTargetHeartRate(targetHeartRate - 1)
+  }
+
+
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };
 
-  const handleDisable = () => {
-    setFormDisabled(true)
-  }
   const handleSubmit = async (e) => {
-    setFormDisabled(false)
 
     e.preventDefault();
     setMessages((prevMessages) => [...prevMessages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
+    setInputValue("")
 
-    // const aiRes = await fetch('/api/chatgpt', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(inputValue),
-    // });
-
-    // const aiData = await aiRes.json();
-    // if (aiData) {
-    //   console.log(aiData.choices[0].message.content);
-    //   setMessages((prevMessages) => [...prevMessages, { text: aiData.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
-    // }
-
-    // Call the model
-    const payload = {
-      songIds: ['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD'],
-      gptSongIds: ['02GDntOXexBFUvSgaXLPkd', '1ZUv3ISx2nFaz0JimVdcoT', '0emd9tHSVP4dK6UG4pcOFD', '0MJZ4hh60zwsYleWWxT5yW', '3ZlvfjWLxFqfOGK2FTR2ph'],
-      heartRate: 110
-    };
-
-    const modelRes = await fetch('/api/model', {
+    /* First Call to GPT for songs recommendation */
+    const aiRes = await fetch('/api/chatgpt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        initialRole: "User will provide an activity for song recommendation. Recommend Provide 5 song name in a string array for easy parsing",
+        inputValue: inputValue
+      }),
     });
-    const modelData = await modelRes.json();
-    if (modelData) {
-      const shuffledList = getShuffledSubset(modelData.songList, 8)
-      setSongs(shuffledList)
+
+    const aiData = await aiRes.json();
+    if (aiData) {
+      const gptSongs = gptSongParser(aiData.quote.choices[0].message.content)
+      const payload = {
+        songIds: ['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD'],
+        gptSongs: gptSongs,
+        heartRate: targetHeartRate
+      };
+
+      /* Call the API model to get recommendations from users' liked music and heart rate */
+      const modelRes = await fetch('/api/model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const modelData = await modelRes.json();
+      if (modelData) {
+        const shuffledList = getShuffledSubset(modelData.songList, 4)
+        setSongs(shuffledList)
+
+        const songNames = shuffledList.map(song => song.name).join(", ");
+        /* Second call to chat gpt to format the songs recieved from the model and tells the user in a conversational way */
+        const finalAiRes = await fetch('/api/chatgpt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            initialRole: "You will be provided a list of songs. Re state it and say it in a nice way for the user",
+            inputValue: songNames
+          }),
+        });
+
+        const aiMessage = await finalAiRes.json()
+        if (aiMessage) {
+          setMessages((prevMessages) => [...prevMessages, { text: aiMessage.quote.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
+        }
+      }
+
     }
+  }
 
-    // const aiRes = await fetch('/api/chatgpt', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(inputValue),
-    // });
-
-    // const aiData = await aiRes.json();
-    // if (aiData) {
-    //   setMessages((prevMessages) => [...prevMessages, { text: aiData.choices[0].message.content, type: 'ai', id: 'ai' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
-    // }
-    // setFormDisabled(false)
-  };
   return (
     <div className={styles.container}>
       <Head>
@@ -120,10 +137,6 @@ export default function Home() {
           <Box
             component="main"
             sx={{
-              backgroundColor: (theme) =>
-                theme.palette.mode === 'light'
-                  ? theme.palette.grey[100]
-                  : theme.palette.grey[900],
               flexGrow: 1,
               height: '100vh',
               overflow: 'auto',
@@ -131,31 +144,13 @@ export default function Home() {
           >
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
               <Grid container spacing={3}>
-
-
-                {/* Heart Rate Chart */}
-                <Grid item xs={12}>
-                  <Title>Heart Chart</Title>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      flexDirection: 'row',
-                      height: 200,
-                    }}
-                  >
-                    <HeartRate />
-                    <HeartChart />
-                  </Paper>
-                </Grid>
-
                 {/* Chat */}
                 <Grid item xs={12} md={9}>
                   <Title>Chat</Title>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={12}>
-                      <Paper sx={{ p: 2, height: '240px', maxHeight: '240px', overflowY: 'auto' }}>
-                        <MessageCard key="123123" className={styles.messageCard} type='ai' timestamp={new Date(Date.now()).toLocaleString()} text='Tell the recommender about your current activiy'></MessageCard>
+                      <Paper sx={{ p: 2, height: '400px', maxHeight: '400px', overflowY: 'auto', backgroundColor: '#000000' }}>
+                        <MessageCard key="123123" className={styles.messageCard} type='ai' timestamp={new Date(Date.now()).toLocaleString(([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))} text='Tell the recommender about your current activiy'></MessageCard>
                         {messages.map((message) => (
                           <MessageCard key={message.id} className={styles.messageCard} type={message.type} timestamp={message.timestamp} text={message.text}></MessageCard>
                         ))}
@@ -165,18 +160,17 @@ export default function Home() {
                       <Paper
                         component="form"
                         onSubmit={handleSubmit}
-                        sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                        sx={{ display: 'flex', alignItems: 'center', width: '100%', backgroundColor: '#000000' }}
                       >
                         <IconButton sx={{ p: '10px' }} color="primary" >
                           <AccountCircleIcon />
                         </IconButton>
                         <InputBase
-                          sx={{ ml: 1, flex: 1 }}
-                          placeholder="Set your target health rate and tell us what you are about to do or what you are currently doing"
+                          sx={{ ml: 1, flex: 1, color: 'white' }}
+                          placeholder="Set your target health rate or tell us what you are about to do or what you are currently doing"
                           inputProps={{ 'aria-label': 'ask for music recommendations' }}
                           value={inputValue}
                           onChange={handleInputChange}
-                          disabled={handleDisable}
                         />
                         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                         <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions" type='submit'>
@@ -188,51 +182,74 @@ export default function Home() {
                 </Grid>
                 {/* Set Heart Rate */}
                 <Grid item xs={12} md={3} lg={3}>
-                  <Title>Set Target Heart Rate</Title>
 
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      height: 307,
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <div style={{ width: '100%', flexGrow: 1 }}>
-                      <div style={{ alignContent: 'center', height: '70%' }}>
-                        <div style={{ display: 'flex', textAlign: 'center', justifyContent: 'center' }}>
-                          <Box mb={2}>
-                            <Typography variant="h2">{value}</Typography>
-                          </Box>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                      <Title>Current Heart Rate</Title>
+
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: 120,
+                          justifyContent: 'center',
+                          backgroundColor: '#000000'
+                        }}
+                      >
+                        <Typography variant="h2" color='white'> 120 bpm</Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12}>
+                      <Title>Set Target Heart Rate</Title>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: 254,
+                          justifyContent: 'center',
+                          backgroundColor: '#000000'
+                        }}
+                      >
+                        <div style={{ width: '100%', flexGrow: 1 }}>
+                          <div style={{ alignContent: 'center', height: '100%' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                              <IconButton size="large" sx={{ color: 'white' }} onClick={handleAddHeartRate}>
+                                <ArrowUpwardIcon />
+                              </IconButton>
+                              <Box>
+                                <Typography variant="h2" color='white'>{targetHeartRate}</Typography>
+                              </Box>
+                              <IconButton size="large" sx={{ color: 'white' }} onClick={handleMinusHeartRate}>
+                                <ArrowDownwardIcon />
+                              </IconButton>
+                            </div>
+                          </div>
                         </div>
-                        <Slider
-                          value={value}
-                          onChange={handleSliderChange}
-                          aria-labelledby="continuous-slider"
-                          valueLabelDisplay="auto"
-                          min={0}
-                          max={100}
-                          style={{ width: '90%' }}
-                        />
-                      </div>
-                    </div>
-                  </Paper>
+                      </Paper>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                {/* <Grid container spacing={3} direction="row">
-                  <Grid item xs={3}>
+                <Grid item xs={12} >
+                  <Title>Music Recommendations</Title>
+                  <Grid container spacing={3} direction="row">
                     {songs.map((song) => (
-                      <MusicCard name={song.name} artists={song.artists} />
+                      <Grid item xs={3}>
+                        <MusicCard name={song.name} year={song.year} artists={song.artists} />
+                      </Grid>
+
                     ))}
                   </Grid>
-                </Grid> */}
-                {songs.map((song) => (
+                </Grid>
+                {/* {songs.map((song) => (
                   <Grid item xs={3}>
-                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column'}}>
-                      <MusicCard name={song.name} artists={song.artists}/>
+                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                      <MusicCard name={song.name} artists={song.artists} />
                     </Paper>
                   </Grid>
                 ))}
+ */}
               </Grid>
               {/* <Copyright sx={{ pt: 4 }} /> */}
             </Container>
