@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import MessageCard from './components/message';
 import Divider from '@mui/material/Divider';
@@ -47,10 +47,8 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const [songs, setSongs] = useState([])
   const [inputValue, setInputValue] = useState('');
-  const [formDisabled, setFormDisabled] = useState([false]);
   const [targetHeartRate, setTargetHeartRate] = useState(100);
-  const [gptSongs, setGptSongs] = useState([])
-
+  const [visibleItems, setVisibleItems] = useState([]);
   const handleAddHeartRate = (event) => {
     setTargetHeartRate(targetHeartRate + 1)
   }
@@ -64,7 +62,10 @@ export default function Home() {
   };
 
   const handleSubmit = async (e) => {
-
+    if (songs.length > 0) {
+      setSongs([])
+      setVisibleItems([])
+    }
     e.preventDefault();
     setMessages((prevMessages) => [...prevMessages, { text: inputValue, type: 'user', id: 'user' + Date.now().toString(), timestamp: new Date(Date.now()).toLocaleString() }]);
     setInputValue("")
@@ -84,11 +85,29 @@ export default function Home() {
     const aiData = await aiRes.json();
     if (aiData) {
       const gptSongs = gptSongParser(aiData.quote.choices[0].message.content)
+
+
+      // Classic Rock
+      // const payload = {
+      //   songIds: ['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD'],
+      //   gptSongs: gptSongs,
+      //   heartRate: targetHeartRate
+      // };
+
+      // Classical music
+      // const payload = {
+      //   songIds: ['1SCWBjhk5WmXPxhDduD3HM', '2SPOwMPEXB4Jm1MKzDH8Wc', '7mqytyJkLxRlywbwSHFvic', '0bIl07xePQKNUUaF9GQHIl', '0zzGHfLjR6rcQhF0Oo1k8i', '7cXjrcVIhug5vZxQ9IAhG8', '4exmbinJUBL4qaM4fPzN9y', '3KD6IGlsy0OmvQ5EZVSGwf', '34y6Gie19NTeapGMoqCHhl', '5WpawpylBtPOL0PBkHVH7W'],
+      //   gptSongs: gptSongs,
+      //   heartRate: targetHeartRate
+      // };
+
+      // Pop
       const payload = {
-        songIds: ['1ZUv3ISx2nFaz0JimVdcoT', '6zmQ8bzlDIfngjy0Ba3w46', '7f1X6tauagdeqpfNuNOYWr', '2ckXnzyvgva2oE9FWjb405', '0emd9tHSVP4dK6UG4pcOFD'],
+        songIds: ['0t1kP63rueHleOhQkYSXFY', '35mvY5S1H3J2QZyna3TFe0', '6Im9k8u9iIzKMrmV7BWtlF', '2U5WueTLIK5WJLD7mvDODv', '249gnXrbfmV8NG6jTEMSwD', '285pBltuF7vW8TeWk8hdRR', '3UoULw70kMsiVXxW0L3A33', '4HBZA5flZLE435QTztThqH', '6Hj9jySrnFppAI0sEMCZpJ', '5GkQIP5mWPi4KZLLXeuFTT'],
         gptSongs: gptSongs,
         heartRate: targetHeartRate
       };
+
 
       /* Call the API model to get recommendations from users' liked music and heart rate */
       const modelRes = await fetch('/api/model', {
@@ -125,6 +144,15 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    songs.forEach((item, index) => {
+      setTimeout(() => {
+        setVisibleItems((prevItems) => [...prevItems, item]);
+      }, index * 500); // Adjust delay for each item
+    });
+  }, [songs]);
+
+
   return (
     <div className={styles.container}>
       <Head>
@@ -138,8 +166,7 @@ export default function Home() {
             component="main"
             sx={{
               flexGrow: 1,
-              height: '100vh',
-              overflow: 'auto',
+              height: '100vh'
             }}
           >
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -149,7 +176,7 @@ export default function Home() {
                   <Title>Chat</Title>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={12}>
-                      <Paper sx={{ p: 2, height: '400px', maxHeight: '400px', overflowY: 'auto', backgroundColor: '#000000' }}>
+                      <Paper sx={{ p: 2, height: '350px', maxHeight: '350px', overflowY: 'auto', backgroundColor: '#000000' }}>
                         <MessageCard key="123123" className={styles.messageCard} type='ai' timestamp={new Date(Date.now()).toLocaleString(([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))} text='Tell the recommender about your current activiy'></MessageCard>
                         {messages.map((message) => (
                           <MessageCard key={message.id} className={styles.messageCard} type={message.type} timestamp={message.timestamp} text={message.text}></MessageCard>
@@ -207,7 +234,7 @@ export default function Home() {
                           p: 2,
                           display: 'flex',
                           flexDirection: 'column',
-                          height: 254,
+                          height: 204,
                           justifyContent: 'center',
                           backgroundColor: '#000000'
                         }}
@@ -234,7 +261,7 @@ export default function Home() {
                 <Grid item xs={12} >
                   <Title>Music Recommendations</Title>
                   <Grid container spacing={3} direction="row">
-                    {songs.map((song) => (
+                    {visibleItems.map((song) => (
                       <Grid item xs={3}>
                         <MusicCard name={song.name} year={song.year} artists={song.artists} />
                       </Grid>

@@ -7,15 +7,16 @@ import Box from '@mui/material/Box';
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import styles from '../../styles/Home.module.css';
 
 
 export default function MusicCard({
     name, artists, year
 }) {
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', minHeight: 200, backgroundColor: "#000000", color: 'white'}}>
+        <Box className={styles.fadeIn} sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', minHeight: 200, maxHeight: 200, backgroundColor: "#000000", color: 'white'}}>
             <CardContent sx={{ flex: '1 0 auto' }}>
-                <Typography component="div" variant="h6">
+                <Typography component="div" variant="h7">
                     {name} 
                 </Typography>
                 <Typography variant="subtitle2" color="white" component="div">
